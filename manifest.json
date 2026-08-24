@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "jltrench.walls",
+  "name": "Walls",
+  "version": "0.3.0",
+  "author": "jltrench",
+  "license": "MIT",
+  "description": "Find wallpapers that match your Omarchy theme. Powered by wallhaven.cc.",
+  "kinds": ["bar-widget"],
+  "entryPoints": { "barWidget": "BarWidget.qml" },
+  "barWidget": {
+    "displayName": "Walls",
+    "category": "Appearance",
+    "allowMultiple": false,
+    "defaultSection": "right"
+  }
+}

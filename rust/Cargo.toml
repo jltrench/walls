@@ -1,0 +1,20 @@
+[package]
+name = "walls"
+version = "0.2.0"
+edition = "2021"
+description = "Wallpaper finder for Omarchy themes, powered by wallhaven.cc"
+license = "MIT"
+repository = "https://github.com/jltrench/walls"
+
+[[bin]]
+name = "walls"
+path = "src/main.rs"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+ureq = { version = "2", features = ["json"] }
+
+[profile.release]
+strip = true
+lto = true
