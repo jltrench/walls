@@ -4,6 +4,21 @@ All notable changes to Walls are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.4] - 2026-08-24
+
+### Security
+
+- Downloads are capped at 100 MiB; a compromised API/CDN response can no
+  longer consume unbounded disk space (`native/src/api.rs`).
+- Download URLs are validated against a wallhaven host allowlist before
+  fetching, and saved files are restricted to known image extensions, so a
+  compromised response cannot write an arbitrary file into the theme
+  background folder.
+
+### Fixed
+
+- Cleanup of clippy lints and dead code.
+
 ## [0.3.3] - 2026-08-24
 
 ### Added
