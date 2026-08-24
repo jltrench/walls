@@ -15,10 +15,9 @@ Panel {
   // The binary ships inside the plugin folder (see README / make install).
   readonly property string binPath: Qt.resolvedUrl("bin/walls").toString().replace("file://", "")
 
-  property string mode: "latest" // latest | search | toplist | random
+  property string mode: "latest" // latest | toplist | random | saved
   readonly property var modes: [
     { id: "latest", label: "Latest" },
-    { id: "search", label: "Search" },
     { id: "toplist", label: "Top" },
     { id: "random", label: "Random" },
     { id: "saved", label: "Saved" }
@@ -30,6 +29,7 @@ Panel {
   property var chips: []
   property var saved: []
   property string activeColor: "" // wallhaven palette hex from a theme chip
+  property bool searching: false // query/color search overrides the tab listing
   property int page: 1
   readonly property int pageSize: 24
   property string seed: "" // random-mode pagination continuity
@@ -51,7 +51,7 @@ Panel {
       root.runSearch(1)
     }
     Qt.callLater(function() {
-      if (root.mode === "search") searchField.forceActiveFocus()
+      if (root.searching) searchField.forceActiveFocus()
     })
   }
 
@@ -68,16 +68,37 @@ Panel {
   function setMode(next) {
     if (root.busy || root.mode === next) return
     root.mode = next
+    root.searching = false
     root.page = 1
     root.seed = ""
-    if (next === "search") {
-      searchField.forceActiveFocus()
-      root.statusText = root.results.length + " wallpapers - page " + root.page
-    } else if (next === "saved") {
+    if (next === "saved") {
       loadSaved()
     } else {
       root.runSearch(1)
     }
+  }
+
+  // Enter/Go: run a query (and/or theme color) search from any tab.
+  function startSearch() {
+    if (root.busy) return
+    if (searchField.text.trim() === "" && root.activeColor === "") {
+      root.statusText = "Type a query or pick a theme color"
+      return
+    }
+    root.searching = true
+    root.page = 1
+    root.seed = ""
+    root.runSearch(1)
+  }
+
+  // Clear the query and restore the current tab's listing.
+  function clearSearch() {
+    searchField.text = ""
+    root.activeColor = ""
+    root.searching = false
+    root.page = 1
+    root.seed = ""
+    root.runSearch(1)
   }
 
   function loadSaved() {
@@ -100,7 +121,7 @@ Panel {
   function buildArgs(target) {
     var args = []
     var q = searchField.text.trim()
-    if (root.mode === "search") {
+    if (root.searching) {
       if (q) args.push(q)
       if (root.activeColor !== "") args.push("--color", root.activeColor)
     } else if (root.mode === "latest") {
@@ -118,7 +139,7 @@ Panel {
   function runSearch(target) {
     if (root.busy) return
     target = Math.max(1, target || 1)
-    if (root.mode === "search" && searchField.text.trim() === "" && root.activeColor === "") {
+    if (root.searching && searchField.text.trim() === "" && root.activeColor === "") {
       root.statusText = "Type a query or pick a theme color"
       return
     }
@@ -156,7 +177,7 @@ Panel {
   onOpenedChanged: {
     if (root.opened) {
       loadChips()
-      if (root.mode === "search")
+      if (root.searching)
         Qt.callLater(function() { searchField.forceActiveFocus() })
     }
   }
@@ -383,11 +404,11 @@ Panel {
 
           TextField {
             id: searchField
-            width: parent.width - searchButton.width - parent.spacing
+            width: parent.width - searchButton.width - clearButton.width - parent.spacing * 2
             placeholderText: "Search wallpapers (mountains, cyberpunk...)"
             enabled: !root.busy
-            Keys.onReturnPressed: { root.setMode("search"); root.runSearch(1) }
-            Keys.onEnterPressed: { root.setMode("search"); root.runSearch(1) }
+            Keys.onReturnPressed: root.startSearch()
+            Keys.onEnterPressed: root.startSearch()
             Keys.onEscapePressed: function(event) {
               if (text !== "")
                 text = ""
@@ -398,13 +419,19 @@ Panel {
           }
 
           Button {
+            id: clearButton
+            anchors.verticalCenter: parent.verticalCenter
+            text: "\uf00d"
+            visible: root.searching
+            tooltipText: "Clear search"
+            onClicked: root.clearSearch()
+          }
+
+          Button {
             id: searchButton
             anchors.verticalCenter: parent.verticalCenter
             text: root.busy ? "..." : "Go"
-            onClicked: {
-              root.setMode("search")
-              root.runSearch(1)
-            }
+            onClicked: root.startSearch()
           }
         }
 
@@ -450,8 +477,7 @@ Panel {
                     root.activeColor = ""
                   else
                     root.activeColor = modelData.matched
-                  root.setMode("search")
-                  root.runSearch(1)
+                  root.startSearch()
                 }
               }
             }

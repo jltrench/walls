@@ -21,8 +21,10 @@ All wallpapers remain the property of their original owners.
   wallhaven color filter with a perceptual nearest-match, and offers one-click
   chips. Desaturated themes are deduplicated so you never get rows of
   identical gray searches.
-- **Four browsing modes** — Search, Latest, Top (with 1d→1y range selector)
-  and Random. Random keeps the API seed across pages so nothing repeats.
+- **Four browsing modes** — Latest, Top (with 1d→1y range selector), Random
+  and Saved. Random keeps the API seed across pages so nothing repeats. The
+  query field is global: type and press Enter from any tab to search, × to
+  return to the tab listing.
 - **Saved library tab** — every wallpaper of the active theme in one grid:
   the current background is marked, hover a tile to apply it, and
   user-downloaded files can be removed (stock theme files are protected).
@@ -80,9 +82,9 @@ Click the image icon in the bar:
 
 | Control | Action |
 | --- | --- |
-| Tabs | Switch between Latest, Search, Top, Random and Saved |
+| Tabs | Switch between Latest, Top, Random and Saved |
 | Range button | Cycle toplist range (visible on the Top tab) |
-| Query + Enter | Keyword search |
+| Query + Enter | Search from any tab (× clears and returns to the tab) |
 | Color chip | Search wallpapers matching that theme color (click again to clear) |
 | Thumbnail | Download & apply as wallpaper |
 | Saved tile hover | Apply (✓) or remove (🗑, user files only) |

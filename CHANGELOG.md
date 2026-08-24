@@ -4,6 +4,14 @@ All notable changes to Walls are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.1] - 2026-08-24
+
+### Changed
+
+- Removed the redundant Search tab: the query field is now global. Type and
+  press Enter from any tab to search (query and/or theme color), and use the
+  × button to clear and return to the tab's listing.
+
 ## [0.3.0] - 2026-08-24
 
 ### Added
