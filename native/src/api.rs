@@ -1,7 +1,7 @@
 //! wallhaven.cc API v1 client. SFW-only defaults, 45 req/min server limit.
 
 use std::fs;
-use std::io;
+use std::io::{self, Read};
 use std::path::Path;
 use std::time::Duration;
 
@@ -117,15 +117,57 @@ pub fn get_item(id: &str) -> Result<ItemResponse, String> {
     response.into_json().map_err(|e| format!("failed to parse item response: {e}"))
 }
 
-/// Stream a wallpaper to disk. The partial file is removed on failure.
+/// Hard cap on bytes accepted from a remote wallpaper body before the file is
+/// applied or retained. Guards against a compromised API/CDN streaming an
+/// unbounded response and exhausting disk.
+const MAX_DOWNLOAD_BYTES: u64 = 100 * 1024 * 1024;
+
+/// Allowed image extensions for a downloaded wallpaper, derived from the
+/// API's file path. Anything else (e.g. an injected `.sh`) is rejected so a
+/// compromised API/CDN cannot write an arbitrary file into the theme folder.
+pub const IMAGE_EXTS: &[&str] = &["jpg", "jpeg", "png", "gif", "webp", "bmp"];
+
+/// Ensure a download URL is a wallhaven asset before it is fetched. The API
+/// may be compromised, so only trusted hosts are accepted.
+pub fn validate_download_url(url: &str) -> Result<(), String> {
+    let lower = url.trim().to_ascii_lowercase();
+    let starts_https = lower.starts_with("https://");
+    let starts_http = lower.starts_with("http://");
+    if !starts_https && !starts_http {
+        return Err("refusing to download: expected an http(s) URL".into());
+    }
+    // Skip the scheme; the host is the text up to the next '/', '?', or '#'.
+    let after_scheme = &lower[lower.find("://").unwrap() + 3..];
+    let host = after_scheme
+        .split('/')
+        .next()
+        .unwrap_or("")
+        .split(['?', '#', '\\'])
+        .next()
+        .unwrap_or("")
+        .to_string();
+    let allowed = ["wallhaven.cc", "whvn.cc", "w.wallhaven.cc"];
+    if !allowed.contains(&host.as_str()) {
+        return Err(format!("refusing to download from untrusted host: {host}"));
+    }
+    Ok(())
+}
+
+/// Stream a wallpaper to disk. The partial file is removed on failure, and
+/// downloads larger than [`MAX_DOWNLOAD_BYTES`] are rejected.
 pub fn download_to(url: &str, dest: &Path) -> io::Result<()> {
-    let mut reader = agent()
+    let reader = agent()
         .get(url)
         .call()
         .map_err(|e| io::Error::other(describe(&e)))?
         .into_reader();
     let mut file = fs::File::create(dest)?;
-    io::copy(&mut reader, &mut file)?;
+    let copied = io::copy(&mut reader.take(MAX_DOWNLOAD_BYTES + 1), &mut file)?;
+    if copied > MAX_DOWNLOAD_BYTES {
+        drop(file);
+        let _ = fs::remove_file(dest);
+        return Err(io::Error::other("download exceeds the 100 MiB size limit"));
+    }
     Ok(())
 }
 
@@ -175,5 +217,16 @@ mod tests {
     fn percent_encodes_queries() {
         let q = SearchQuery { q: "dark forest", sort: "relevance", ..Default::default() };
         assert!(q.url().contains("q=dark%20forest"));
+    }
+
+    #[test]
+    fn rejects_untrusted_download_hosts() {
+        assert!(validate_download_url("https://wallhaven.cc/wallpapers/full/5/gp/94x38z.jpg").is_ok());
+        assert!(validate_download_url("https://w.wallhaven.cc/full/94/wallhaven-94x38z.jpg").is_ok());
+        assert!(validate_download_url("http://whvn.cc/x.jpg").is_ok());
+        assert!(validate_download_url("https://evil.example.com/x.jpg").is_err());
+        assert!(validate_download_url("file:///etc/passwd").is_err());
+        assert!(validate_download_url("wallhaven.cc/x.jpg").is_err());
+        assert!(validate_download_url("").is_err());
     }
 }

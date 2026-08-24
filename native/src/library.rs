@@ -66,7 +66,7 @@ fn collect_dir(dir: &Path, source: &str, current: Option<&Path>, out: &mut Vec<W
             .to_string();
         out.push(WallpaperFile {
             path: path.to_string_lossy().to_string(),
-            is_current: current.map(|c| c == &path).unwrap_or(false),
+            is_current: current.map(|c| c == path).unwrap_or(false),
             source: source.to_string(),
             name,
         });

@@ -101,7 +101,7 @@ impl SearchArgs {
         args
     }
 
-    fn into_query(&self) -> api::SearchQuery<'_> {
+    fn to_query(&self) -> api::SearchQuery<'_> {
         api::SearchQuery {
             q: &self.query,
             sort: &self.sort,
@@ -110,8 +110,7 @@ impl SearchArgs {
             seed: self.seed.as_deref(),
             page: self.page,
         }
-    }
-}
+    }}
 
 fn cmd_search(raw: &[String]) {
     // `search` alone (no sort flag) means "latest": matches the site landing
@@ -124,7 +123,7 @@ fn cmd_search(raw: &[String]) {
         fail("usage: walls search <query> [--sort ...] [--color HEX] [--range ...] [--page N]");
     }
 
-    let query = args.into_query();
+    let query = args.to_query();
     eprintln!(
         "walls: {} (page {})",
         query.url(),
@@ -185,7 +184,18 @@ fn cmd_apply(raw: &[String]) {
         Err(e) => fail(&e),
     };
 
+    // Only fetch trusted wallhaven assets; a compromised API/CDN must not be
+    // able to point the download at an arbitrary host or write an arbitrary
+    // file into the theme folder.
+    let download_url = &item.data.path;
+    if let Err(e) = api::validate_download_url(download_url) {
+        fail(&e);
+    }
     let ext = item.data.path.rsplit('.').next().unwrap_or("jpg").to_lowercase();
+    if !api::IMAGE_EXTS.contains(&ext.as_str()) {
+        fail(&format!("refusing to save downloaded file with disallowed extension: .{ext}"));
+    }
+
     let dir = match backgrounds_dir() {
         Ok(d) => d,
         Err(e) => fail(&e),

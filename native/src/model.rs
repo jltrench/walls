@@ -7,10 +7,6 @@ pub struct Wallpaper {
     pub path: String,
     pub resolution: String,
     #[serde(default)]
-    pub dimension_x: u32,
-    #[serde(default)]
-    pub dimension_y: u32,
-    #[serde(default)]
     pub file_size: u64,
     #[serde(default)]
     pub views: u64,
