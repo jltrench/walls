@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "jltrench.walls",
   "name": "Walls",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "author": "jltrench",
   "license": "MIT",
   "description": "Find wallpapers that match your Omarchy theme. Powered by wallhaven.cc.",
