@@ -1,7 +1,7 @@
 # Walls
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-![Version](https://img.shields.io/badge/version-0.3.2-blue)
+![Version](https://img.shields.io/badge/version-0.3.3-blue)
 
 Native Omarchy Quattro bar widget to find wallpapers that match your theme.
 Browse Latest / Top / Random listings, search by keyword, or search by the

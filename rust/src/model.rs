@@ -7,6 +7,22 @@ pub struct Wallpaper {
     pub path: String,
     pub resolution: String,
     #[serde(default)]
+    pub dimension_x: u32,
+    #[serde(default)]
+    pub dimension_y: u32,
+    #[serde(default)]
+    pub file_size: u64,
+    #[serde(default)]
+    pub views: u64,
+    #[serde(default)]
+    pub favorites: u64,
+    #[serde(default)]
+    pub category: String,
+    #[serde(default)]
+    pub purity: String,
+    #[serde(default)]
+    pub created_at: String,
+    #[serde(default)]
     pub thumbs: Thumbs,
 }
 
@@ -42,6 +58,12 @@ pub struct SearchResult {
     pub id: String,
     pub thumb: String,
     pub resolution: String,
+    pub size: String,   // human-readable file size
+    pub views: u64,
+    pub favorites: u64,
+    pub category: String,
+    pub purity: String,
+    pub created: String,
 }
 
 /// Full stdout payload of `walls search`.

@@ -4,6 +4,18 @@ All notable changes to Walls are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.3] - 2026-08-24
+
+### Added
+
+- Hover info overlay on search thumbnails: wallpaper id, resolution, file
+  size, views and favorites (like the wallhaven.cc wallpaper page).
+
+### Fixed
+
+- Theme color chips no longer leave the status line stuck on the hovered
+  color: the legend restores when the pointer leaves.
+
 ## [0.3.2] - 2026-08-24
 
 ### Changed

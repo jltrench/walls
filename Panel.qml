@@ -468,6 +468,8 @@ Panel {
                 onHoveredChanged: {
                   if (hovered)
                     root.statusText = modelData.name + " (#" + modelData.hex + " ~ #" + modelData.matched + ")"
+                  else
+                    root.statusText = root.results.length + " wallpapers - page " + root.page
                 }
               }
 

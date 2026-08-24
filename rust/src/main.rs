@@ -144,12 +144,33 @@ fn cmd_search(raw: &[String]) {
                 id: w.id.clone(),
                 thumb: w.thumbs.large.clone(),
                 resolution: w.resolution.clone(),
+                size: human_size(w.file_size),
+                views: w.views,
+                favorites: w.favorites,
+                category: w.category.clone(),
+                purity: w.purity.clone(),
+                created: w.created_at.clone(),
             })
             .collect(),
         page: response.meta.as_ref().map(|m| m.current_page).unwrap_or(args.page),
         seed: response.meta.and_then(|m| m.seed),
     };
     println!("{}", serde_json::to_string(&out).unwrap_or_else(|_| "{\"results\":[],\"page\":1,\"seed\":null}".into()));
+}
+
+fn human_size(bytes: u64) -> String {
+    const UNITS: [&str; 4] = ["B", "KB", "MB", "GB"];
+    let mut value = bytes as f64;
+    let mut unit = 0;
+    while value >= 1024.0 && unit < UNITS.len() - 1 {
+        value /= 1024.0;
+        unit += 1;
+    }
+    if unit == 0 {
+        format!("{bytes} B")
+    } else {
+        format!("{value:.1} {}", UNITS[unit])
+    }
 }
 
 fn cmd_apply(raw: &[String]) {
