@@ -56,7 +56,7 @@ No sudo needed; everything lives in `~/.config/omarchy/plugins/jltrench.walls/`.
 ```sh
 git clone https://github.com/jltrench/walls.git
 cd walls
-make install                                  # builds rust/ + installs plugin
+make install                                  # builds native/ + installs plugin
 omarchy plugin enable jltrench.walls right    # adds the widget to the bar
 ```
 
@@ -147,12 +147,12 @@ Panel.qml         Search/browse panel state + processes
 ResultGrid.qml    Thumbnail grid component
 SavedGrid.qml     Local wallpaper library grid (apply/remove overlay)
 icon.svg          Bar icon (Phosphor image icon)
-rust/src/api.rs   wallhaven.cc API v1 client
-rust/src/palette.rs  Fixed color palette + nearest-match logic
-rust/src/theme.rs colors.toml scanning
-rust/src/library.rs  Local wallpaper library (list/set/remove)
-rust/src/model.rs serde types
-rust/src/main.rs  CLI dispatch
+native/src/api.rs   wallhaven.cc API v1 client
+native/src/palette.rs  Fixed color palette + nearest-match logic
+native/src/theme.rs colors.toml scanning
+native/src/library.rs  Local wallpaper library (list/set/remove)
+native/src/model.rs serde types
+native/src/main.rs  CLI dispatch
 ```
 
 Saved changes under `~/.config/omarchy/plugins/` hot-reload; force with

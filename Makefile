@@ -5,13 +5,13 @@ QMLLINT := $(shell command -v qmllint || echo /usr/lib/qt6/bin/qmllint)
 .PHONY: build install validate lint test remove clean release
 
 build:
-	cargo build --release --manifest-path rust/Cargo.toml
+	cargo build --release --manifest-path native/Cargo.toml
 
 ## Build the binary and sync everything into the Omarchy plugin folder.
 install: build
 	@mkdir -p $(PLUGIN_DIR)/bin
 	cp manifest.json BarWidget.qml Panel.qml ResultGrid.qml SavedGrid.qml icon.svg README.md LICENSE $(PLUGIN_DIR)/
-	cp rust/target/release/walls $(PLUGIN_DIR)/bin/
+	cp native/target/release/walls $(PLUGIN_DIR)/bin/
 	@echo "Installed $(ID) -> $(PLUGIN_DIR)"
 
 validate: 
@@ -21,13 +21,13 @@ lint:
 	$(QMLLINT) -I "$${OMARCHY_PATH}/shell" BarWidget.qml Panel.qml ResultGrid.qml || true
 
 test:
-	cargo test --manifest-path rust/Cargo.toml
+	cargo test --manifest-path native/Cargo.toml
 
 remove:
 	omarchy plugin remove $(ID) --yes 2>/dev/null || rm -rf $(PLUGIN_DIR)
 
 clean:
-	cargo clean --manifest-path rust/Cargo.toml
+	cargo clean --manifest-path native/Cargo.toml
 
 ## Tag, push and create a GitHub release for the current version.
 ## Usage: make release VERSION=v0.3.1
