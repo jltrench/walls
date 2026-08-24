@@ -2,7 +2,7 @@ ID := jltrench.walls
 PLUGIN_DIR := $(HOME)/.config/omarchy/plugins/$(ID)
 QMLLINT := $(shell command -v qmllint || echo /usr/lib/qt6/bin/qmllint)
 
-.PHONY: build install validate lint test remove clean
+.PHONY: build install validate lint test remove clean release
 
 build:
 	cargo build --release --manifest-path rust/Cargo.toml
@@ -28,3 +28,16 @@ remove:
 
 clean:
 	cargo clean --manifest-path rust/Cargo.toml
+
+## Tag, push and create a GitHub release for the current version.
+## Usage: make release VERSION=v0.3.1
+release:
+	@test -n "$(VERSION)" || (echo "Usage: make release VERSION=vX.Y.Z" && exit 1)
+	@test -z "$$(git status --porcelain)" || (echo "Working tree is dirty; commit first" && exit 1)
+	@test "$$(git rev-parse --abbrev-ref HEAD)" = "master" || (echo "Release from master only" && exit 1)
+	@test -z "$$(git tag -l '$(VERSION)')" || (echo "Tag $(VERSION) already exists" && exit 1)
+	git tag -a $(VERSION) -m "Walls $(VERSION)"
+	git push origin master
+	git push origin $(VERSION)
+	gh release create $(VERSION) --title "Walls $(VERSION)" --notes "See CHANGELOG.md for details."
+	@echo "Released $(VERSION) - update the marketplace via the verify form with SHA $$(git rev-parse HEAD)"
